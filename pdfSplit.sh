@@ -39,13 +39,13 @@ DEFAULT_QUALITY="printer"
 numberOfArguments=$#
 
 case $numberOfArguments in
-	1)
+    1)
         # only split the file
         fileNameInput=$1
         fileNameOutput="${fileNameInput}_page_%04d.pdf"
         pdfSettings=$DEFAULT_QUALITY
         ;;
-	2)
+    2)
         # user supplied input and output files
         fileNameInput=$1
         fileNameOutput=$2
@@ -57,12 +57,12 @@ case $numberOfArguments in
         fileNameOutput=$2
         pdfSettings=$3
         ;;
-	*)
-		# incorrect syntax print usage and exit
+    *)
+	# incorrect syntax print usage and exit
         echo "Error: Illegal number of parameters."
         usage
         exit 1
-		;;
+	;;
   esac
 
 if [[ ! -f $fileNameInput ]]; then
@@ -82,3 +82,5 @@ cmdToExecute="gs -sDEVICE=pdfwrite -dNOPAUSE -dQUIET -dBATCH \
 echo -e "Executing:\n    "$cmdToExecute
 
 $cmdToExecute
+# finish script with the return code from gs command
+exit $?
