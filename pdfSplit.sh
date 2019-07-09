@@ -42,7 +42,7 @@ case $numberOfArguments in
     1)
         # only split the file
         fileNameInput=$1
-        fileNameOutput="${fileNameInput}_page_%04d.pdf"
+        fileNameOutput="${fileNameInput%.*}_page_%04d.pdf"
         pdfSettings=$DEFAULT_QUALITY
         ;;
     2)
@@ -79,8 +79,14 @@ cmdToExecute="gs -sDEVICE=pdfwrite -dNOPAUSE -dQUIET -dBATCH \
     -dPDFSETTINGS=/$pdfSettings -dCompatibilityLevel=1.4 \
     -sOutputFile=$fileNameOutput $fileNameInput"
 
-echo -e "Executing:\n    "$cmdToExecute
+echo -e "Executing:\n\t"$cmdToExecute
 
 $cmdToExecute
-# finish script with the return code from gs command
-exit $?
+retval=$?
+if [ $retval -ne 0 ]; then
+    echo "ERROR: ghostScript exit code is not 0 but: $retval"
+    exit $retval
+fi
+
+echo -e "Output files are named:\t\t${fileNameOutput//%*[[:digit:]][[:alpha:]]/*}"
+
