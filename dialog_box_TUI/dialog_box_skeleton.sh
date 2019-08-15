@@ -2,6 +2,9 @@
 # Inspired by: 
 # https://stackoverflow.com/questions/40193222/dialog-show-menu-after-option-has-been-executed
 
+# path to color scheme configuration file
+export DIALOGRC=./dialogrc
+
 HEIGHT=15
 WIDTH=70
 CHOICE_HEIGHT=5
