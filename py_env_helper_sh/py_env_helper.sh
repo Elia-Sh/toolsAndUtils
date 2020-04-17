@@ -7,7 +7,7 @@
 ###
 
 DEFAULT_PROJ_DIR="test_project_name"
-DEFAULT_venv_DIR="venv"
+DEFAULT_VENV_DIR="venv"
 PYTHON_REQUIRED_VERSION="3.3"
 
 help() {
@@ -24,13 +24,16 @@ EOF
 }
 
 test_args() {
-    args_num=$#
+    args_num=${#cmdline_args_array[@]}
     case "$args_num" in
         "0")
             help
         ;;
         "1"|"2")
-            if [[ $1 == "-h" || $1 == "--help" ]]; then
+            if [[ ${cmdline_args_array[0]} == "-h" || \
+                  ${cmdline_args_array[0]} == "--help" || \
+                  ${cmdline_args_array[1]} == "-h"  || \
+                  ${cmdline_args_array[1]} == "--help" ]]; then
                 help
             fi
             # we are golden -> passed checks (did not asked for "help")
@@ -43,21 +46,21 @@ test_args() {
 }
 
 
-init_and_source_py_venv_in_path() {
-    local dir_name=${1:-$DEFAULT_PROJ_DIR}
-    local venv_dir_name=${2:-venv}
-    
-    # this is the core of the entire tool - create venv!
-    # TODO add pip?
-    local cmd="mkdir -p \"$dir_name\" \
-        && cd \"$dir_name\" && python3 -m venv \"$venv_dir_name\""
+init_py_venv() {
+    # use default if not supplied
+    local dir_name=${cmdline_args_array[0]:-$DEFAULT_PROJ_DIR}
+    local venv_dir_name=${cmdline_args_array[1]:-$DEFAULT_VENV_DIR}
 
     if [[ -d "$dir_name" ]]; then
         echo "ERROR: Directory is taken, please choose a new project name :)"
         exit 1
     fi
-    
-    echo "Creating venv dir"
+    local cmd="mkdir -p \"$dir_name\" \
+        && cd \"$dir_name\" && python3 -m venv \"$venv_dir_name\""
+
+    # this is the core of the entire tool - create venv!
+    # TODO add pip?
+    echo -e "Creating project dir:      '$dir_name',\nand in it cooking Py venv: '$venv_dir_name'..."
     eval $cmd
     if [ $? -ne 0 ] ; then 
         echo "ERROR: Project directory creation failed! :(" ; 
@@ -90,8 +93,8 @@ test_host_env () {
     
 }
 
-cmdline_args_array=$@ 
-test_args ${cmdline_args_array[@]} # this should fail if dir exists.
-test_host_env ${cmdline_args_array[@]}
-init_and_source_py_venv_in_path ${cmdline_args_array[@]}
+cmdline_args_array=("$@")   # store the arguments into a global var; for convinience.
+test_args
+test_host_env
+init_py_venv
 
